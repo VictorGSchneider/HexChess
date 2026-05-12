@@ -35,31 +35,23 @@ extends Node2D
 # VARIÁVEIS INTERNAS
 # ============================================================
 
-const PIECE_SCENE = preload("res://piece.tscn")
-const PIECE_SCRIPT = preload("res://piece.gd")
 const NULL_COORD = Vector2i(-999, -999)
 
 # Dicionário principal: Vector2i(q, r) -> HexTile data
 var tiles: Dictionary = {}
 
-# Container para as peças (filho da scene)
-@onready var pieces_container: Node2D = $Pieces
-
 # Tile atualmente sob o mouse
 var hovered_tile: Vector2i = NULL_COORD
 
-# Tile selecionado (clicado)
+# Tile selecionado (clicado) — escrito pelo GameManager
 var selected_tile: Vector2i = NULL_COORD
 
-# Tiles com highlight de movimento válido
+# Tiles com highlight de movimento válido — escrito pelo GameManager
 var valid_moves: Array[Vector2i] = []
 
-# Turno atual (0 = brancas, 1 = pretas)
-var current_turn: int = 0
-
-signal turn_changed(turn: int)
-signal piece_moved(from: Vector2i, to: Vector2i)
-signal piece_captured(captured)
+# Emitido sempre que um tile valido eh clicado. O GameManager se conecta
+# aqui e decide o que fazer (selecionar peca, mover, etc).
+signal tile_clicked(coord: Vector2i)
 
 # ============================================================
 # COORDENADAS AXIAIS — FUNDAMENTO
@@ -95,7 +87,6 @@ const DIAGONALS = [
 
 func _ready():
 	_generate_board()
-	_setup_starting_position()
 	# Centralizar o tabuleiro na tela
 	position = get_viewport_rect().size / 2
 
@@ -247,56 +238,8 @@ func _input(event):
 
 
 func _on_tile_clicked(coord: Vector2i):
-	"""Chamado quando um tile é clicado."""
-	var clicked_piece = _piece_at(coord)
-
-	# Já há uma peça selecionada
-	if selected_tile != NULL_COORD:
-		# Mesmo tile → desseleciona
-		if selected_tile == coord:
-			_clear_selection()
-			queue_redraw()
-			return
-		# Tile é um movimento válido → move
-		if coord in valid_moves:
-			_move_piece(selected_tile, coord)
-			_clear_selection()
-			_end_turn()
-			queue_redraw()
-			return
-		# Senão, tenta selecionar outra peça do jogador atual
-		if clicked_piece != null and clicked_piece.color == current_turn:
-			_select_piece(coord)
-			queue_redraw()
-			return
-		# Clique inválido → desseleciona
-		_clear_selection()
-		queue_redraw()
-		return
-
-	# Sem seleção: só seleciona peça do jogador da vez
-	if clicked_piece != null and clicked_piece.color == current_turn:
-		_select_piece(coord)
-		queue_redraw()
-
-
-func _select_piece(coord: Vector2i) -> void:
-	var p = _piece_at(coord)
-	selected_tile = coord
-	if p != null:
-		valid_moves = p.get_valid_moves()
-	else:
-		valid_moves.clear()
-
-
-func _clear_selection() -> void:
-	selected_tile = NULL_COORD
-	valid_moves.clear()
-
-
-func _end_turn() -> void:
-	current_turn = 1 - current_turn
-	turn_changed.emit(current_turn)
+	"""Encaminha o clique para quem estiver ouvindo (GameManager)."""
+	tile_clicked.emit(coord)
 
 # ============================================================
 # UTILITÁRIOS DE GRID
@@ -350,68 +293,3 @@ func hex_distance(a: Vector2i, b: Vector2i) -> int:
 func is_valid_tile(coord: Vector2i) -> bool:
 	"""Verifica se a coordenada é um tile válido do tabuleiro."""
 	return tiles.has(coord)
-
-# ============================================================
-# PEÇAS — SPAWN / MOVIMENTO
-# ============================================================
-
-func _piece_at(coord: Vector2i):
-	if not tiles.has(coord):
-		return null
-	return tiles[coord].get("piece", null)
-
-
-func _spawn_piece(type: int, color: int, coord: Vector2i) -> Node2D:
-	if not tiles.has(coord):
-		push_warning("Tentativa de spawn fora do tabuleiro: %s" % str(coord))
-		return null
-	var piece = PIECE_SCENE.instantiate()
-	pieces_container.add_child(piece)
-	piece.setup(type, color, coord, self)
-	piece.position = axial_to_pixel(coord)
-	tiles[coord]["piece"] = piece
-	return piece
-
-
-func _move_piece(from: Vector2i, to: Vector2i) -> void:
-	var piece = _piece_at(from)
-	if piece == null:
-		return
-	var captured = _piece_at(to)
-	if captured != null:
-		piece_captured.emit(captured)
-		tiles[to]["piece"] = null
-		captured.queue_free()
-
-	tiles[from]["piece"] = null
-	tiles[to]["piece"] = piece
-	piece.coord = to
-	piece.has_moved = true
-	piece.position = axial_to_pixel(to)
-	piece_moved.emit(from, to)
-
-
-# ============================================================
-# POSIÇÃO INICIAL
-# ============================================================
-
-func _setup_starting_position() -> void:
-	"""Layout simplificado (não-Glinski) para 91-hex board (raio 5).
-	Brancas embaixo (r altos), pretas em cima (r baixos)."""
-	var PT = PIECE_SCRIPT.PieceType
-	var PC = PIECE_SCRIPT.PieceColor
-	var back_rank = [PT.ROOK, PT.KNIGHT, PT.BISHOP, PT.QUEEN, PT.KING, PT.ROOK]
-
-	# Brancas — back rank em r=5 (q = -5..0)
-	for i in range(back_rank.size()):
-		_spawn_piece(back_rank[i], PC.WHITE, Vector2i(-5 + i, 5))
-	# Brancas — peões em r=4 (q = -5..1)
-	for q in range(-5, 2):
-		_spawn_piece(PT.PAWN, PC.WHITE, Vector2i(q, 4))
-
-	# Pretas — back rank em r=-5 (q = 0..5), espelhado
-	for i in range(back_rank.size()):
-		_spawn_piece(back_rank[i], PC.BLACK, Vector2i(i, -5))
-	# Pretas — peões em r=-4 (q = -1..5)
-	for q in range(-1, 6):
-		_spawn_piece(PT.PAWN, PC.BLACK, Vector2i(q, -4))

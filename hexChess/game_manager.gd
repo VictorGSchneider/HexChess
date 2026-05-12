@@ -121,7 +121,9 @@ func _place(_unused: int, type_name: String, color_val: int, coord: Vector2i):
 		board.tiles[coord]["piece"] = piece
 
 	pieces.append(piece)
-	add_child(piece)
+	# Adiciona como filho do board para herdar a transformacao (board fica
+	# centralizado em viewport.size/2, entao as posicoes locais batem).
+	board.add_child(piece)
 
 	# Registrar portais
 	if type_name == "PORTAL":
