@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://dh8m4kxzn7q2v"]
+[gd_scene format=3 uid="uid://dh8m4kx0n7q2v"]
 
 [ext_resource type="PackedScene" uid="uid://cbghk1m2n3p4q" path="res://hex_board.tscn" id="1_board"]
 
