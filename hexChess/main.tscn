@@ -1,8 +1,10 @@
-[gd_scene format=3 uid="uid://c7bng66aqw4t5"]
+[gd_scene load_steps=3 format=3 uid="uid://c7bng66aqw4t5"]
 
 [ext_resource type="PackedScene" uid="uid://c78082a1m1x82" path="res://hex_board.tscn" id="1_board"]
+[ext_resource type="Script" uid="uid://lcmuhlrnb08" path="res://game_manager.gd" id="2_gm"]
 
 [node name="Main" type="Node2D" unique_id=709072055]
+script = ExtResource("2_gm")
 
 [node name="Background" type="ColorRect" parent="." unique_id=313321565]
 offset_right = 3840.0
