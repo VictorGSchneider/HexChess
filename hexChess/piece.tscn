@@ -1,17 +1,11 @@
-[gd_scene format=3 uid="uid://bvqxk5j8h7n3w"]
+[gd_scene load_steps=3 format=3 uid="uid://bvqxk5j8h7n3w"]
 
-[ext_resource type="Script" uid="uid://dj721neukcb0y" path="res://piece.gd" id="1_piece"]
+[ext_resource type="Script" path="res://piece.gd" id="1_piece"]
+[ext_resource type="Texture2D" path="res://pieces/chess-pawn-white.png" id="2_tex"]
 
 [node name="Piece" type="Node2D"]
 z_index = 10
 script = ExtResource("1_piece")
 
-[node name="Symbol" type="Label" parent="."]
-offset_left = -32.0
-offset_top = -36.0
-offset_right = 32.0
-offset_bottom = 36.0
-theme_override_font_sizes/font_size = 44
-text = "?"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_tex")

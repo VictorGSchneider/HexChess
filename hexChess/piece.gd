@@ -21,7 +21,10 @@ enum PieceColor { WHITE, BLACK }
 		color = value
 		_refresh_visual()
 
-@onready var symbol_label: Label = $Symbol
+@onready var sprite: Sprite2D = $Sprite
+
+## Escala aplicada aos sprites (PNGs sao 500x500, queremos ~65px num hex de raio 40)
+@export var sprite_scale: float = 0.13
 
 var coord: Vector2i = Vector2i.ZERO
 var board: Node2D = null
@@ -30,29 +33,40 @@ var is_revealed: bool = false           # Espiao
 var portal_pair_coord: Vector2i = Vector2i(-999, -999)  # Portal
 var is_blocking: bool = false           # Sentinela
 
-# Simbolos Unicode (xadrez classico) + letras para inéditas
-const SYMBOLS_WHITE = {
-	PieceType.PAWN: "♙", PieceType.ROOK: "♖", PieceType.KNIGHT: "♘",
-	PieceType.BISHOP: "♗", PieceType.QUEEN: "♕", PieceType.KING: "♔",
-	PieceType.ARCHBISHOP: "A", PieceType.CHANCELLOR: "C",
-	PieceType.SENTINEL: "S", PieceType.SPY: "Y", PieceType.PORTAL: "O",
+# Texturas das pecas. Use null quando o sprite ainda nao existe — usamos
+# fallback com modulate quando faltar a versao preta da peca.
+const TEXTURES_WHITE = {
+	PieceType.PAWN:   preload("res://pieces/chess-pawn-white.png"),
+	PieceType.ROOK:   preload("res://pieces/chess-rook-white.png"),
+	PieceType.KNIGHT: preload("res://pieces/chess-knight-white.png"),
+	PieceType.BISHOP: preload("res://pieces/chess-bishop-white.png"),
+	PieceType.QUEEN:  preload("res://pieces/chess-queen-white.png"),
+	PieceType.KING:   preload("res://pieces/chess-king-white.png"),
 }
-const SYMBOLS_BLACK = {
-	PieceType.PAWN: "♟", PieceType.ROOK: "♜", PieceType.KNIGHT: "♞",
-	PieceType.BISHOP: "♝", PieceType.QUEEN: "♛", PieceType.KING: "♚",
-	PieceType.ARCHBISHOP: "a", PieceType.CHANCELLOR: "c",
-	PieceType.SENTINEL: "s", PieceType.SPY: "y", PieceType.PORTAL: "o",
+const TEXTURES_BLACK = {
+	PieceType.PAWN:   preload("res://pieces/chess-pawn-black.png"),
+	PieceType.ROOK:   preload("res://pieces/chess-rook-black.png"),
+	PieceType.KNIGHT: preload("res://pieces/chess-knight-black.png"),
+	# chess-bishop-black.png ainda nao foi adicionado — fallback para o branco
+	PieceType.BISHOP: preload("res://pieces/chess-bishop-white.png"),
+	PieceType.QUEEN:  preload("res://pieces/chess-queen-black.png"),
+	PieceType.KING:   preload("res://pieces/chess-king-black.png"),
 }
 
 func _ready():
 	_refresh_visual()
 
 func _refresh_visual():
-	if symbol_label == null:
+	if sprite == null:
 		return
-	var src = SYMBOLS_WHITE if color == PieceColor.WHITE else SYMBOLS_BLACK
-	symbol_label.text = src.get(type, "?")
-	symbol_label.modulate = Color(0.98, 0.95, 0.86) if color == PieceColor.WHITE else Color(0.12, 0.10, 0.08)
+	var src = TEXTURES_WHITE if color == PieceColor.WHITE else TEXTURES_BLACK
+	var tex = src.get(type, null)
+	sprite.texture = tex
+	sprite.visible = tex != null
+	sprite.scale = Vector2(sprite_scale, sprite_scale)
+	# Pretas sem sprite proprio (atualmente: bispo) entram em fallback escuro
+	var is_black_fallback = color == PieceColor.BLACK and type == PieceType.BISHOP
+	sprite.modulate = Color(0.15, 0.13, 0.12) if is_black_fallback else Color.WHITE
 
 func setup(p_type: PieceType, p_color: PieceColor, p_coord: Vector2i, p_board: Node2D) -> void:
 	type = p_type

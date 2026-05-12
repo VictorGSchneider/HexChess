@@ -36,6 +36,7 @@ extends Node2D
 # ============================================================
 
 const PIECE_SCENE = preload("res://piece.tscn")
+const PIECE_SCRIPT = preload("res://piece.gd")
 const NULL_COORD = Vector2i(-999, -999)
 
 # Dicionário principal: Vector2i(q, r) -> HexTile data
@@ -397,21 +398,20 @@ func _move_piece(from: Vector2i, to: Vector2i) -> void:
 func _setup_starting_position() -> void:
 	"""Layout simplificado (não-Glinski) para 91-hex board (raio 5).
 	Brancas embaixo (r altos), pretas em cima (r baixos)."""
-	var back_rank = [
-		Piece.PieceType.ROOK, Piece.PieceType.KNIGHT, Piece.PieceType.BISHOP,
-		Piece.PieceType.QUEEN, Piece.PieceType.KING, Piece.PieceType.ROOK,
-	]
+	var PT = PIECE_SCRIPT.PieceType
+	var PC = PIECE_SCRIPT.PieceColor
+	var back_rank = [PT.ROOK, PT.KNIGHT, PT.BISHOP, PT.QUEEN, PT.KING, PT.ROOK]
 
 	# Brancas — back rank em r=5 (q = -5..0)
 	for i in range(back_rank.size()):
-		_spawn_piece(back_rank[i], Piece.PieceColor.WHITE, Vector2i(-5 + i, 5))
+		_spawn_piece(back_rank[i], PC.WHITE, Vector2i(-5 + i, 5))
 	# Brancas — peões em r=4 (q = -5..1)
 	for q in range(-5, 2):
-		_spawn_piece(Piece.PieceType.PAWN, Piece.PieceColor.WHITE, Vector2i(q, 4))
+		_spawn_piece(PT.PAWN, PC.WHITE, Vector2i(q, 4))
 
 	# Pretas — back rank em r=-5 (q = 0..5), espelhado
 	for i in range(back_rank.size()):
-		_spawn_piece(back_rank[i], Piece.PieceColor.BLACK, Vector2i(i, -5))
+		_spawn_piece(back_rank[i], PC.BLACK, Vector2i(i, -5))
 	# Pretas — peões em r=-4 (q = -1..5)
 	for q in range(-1, 6):
-		_spawn_piece(Piece.PieceType.PAWN, Piece.PieceColor.BLACK, Vector2i(q, -4))
+		_spawn_piece(PT.PAWN, PC.BLACK, Vector2i(q, -4))
