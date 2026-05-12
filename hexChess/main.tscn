@@ -1,27 +1,28 @@
-[gd_scene load_steps=2 format=3 uid="uid://dh8m4kx0n7q2v"]
+[gd_scene format=3 uid="uid://c7bng66aqw4t5"]
 
-[ext_resource type="PackedScene" path="res://hex_board.tscn" id="1_board"]
+[ext_resource type="PackedScene" uid="uid://c78082a1m1x82" path="res://hex_board.tscn" id="1_board"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=709072055]
 
-[node name="Background" type="ColorRect" parent="."]
-offset_right = 1920.0
-offset_bottom = 1080.0
+[node name="Background" type="ColorRect" parent="." unique_id=313321565]
+offset_right = 3840.0
+offset_bottom = 2160.0
 color = Color(0.13, 0.11, 0.09, 1)
 
-[node name="HexBoard" parent="." instance=ExtResource("1_board")]
+[node name="HexBoard" parent="." unique_id=33066587 instance=ExtResource("1_board")]
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=2017240655]
 
-[node name="Title" type="Label" parent="HUD"]
+[node name="Title" type="Label" parent="HUD" unique_id=1209303863]
 offset_left = 16.0
 offset_top = 8.0
 offset_right = 480.0
 offset_bottom = 48.0
 theme_override_font_sizes/font_size = 22
 text = "HexChess — clique numa peça para ver os movimentos"
+metadata/_edit_use_anchors_ = true
 
-[node name="TurnLabel" type="Label" parent="HUD"]
+[node name="TurnLabel" type="Label" parent="HUD" unique_id=856345078]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -33,3 +34,4 @@ grow_horizontal = 0
 theme_override_font_sizes/font_size = 22
 text = "Vez: Brancas"
 horizontal_alignment = 2
+metadata/_edit_use_anchors_ = true

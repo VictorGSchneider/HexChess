@@ -1,2 +1,6 @@
 res://hex_board.gd
 res://piece.gd
+res://piece.tscn
+res://hex_board.tscn
+res://main.tscn
+res://game_manager.gd

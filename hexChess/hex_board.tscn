@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://cbghk1m2n3p4q"]
+[gd_scene format=3 uid="uid://c78082a1m1x82"]
 
-[ext_resource type="Script" path="res://hex_board.gd" id="1_board"]
+[ext_resource type="Script" uid="uid://r3dmkvxkvf5q" path="res://hex_board.gd" id="1_board"]
 
-[node name="HexBoard" type="Node2D"]
+[node name="HexBoard" type="Node2D" unique_id=700851914]
 script = ExtResource("1_board")
 
-[node name="Pieces" type="Node2D" parent="."]
+[node name="Pieces" type="Node2D" parent="." unique_id=809923733]
