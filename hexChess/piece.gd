@@ -1,6 +1,7 @@
 # piece.gd
 # Sistema de pecas do HexChess - Godot 4.x
 
+class_name Piece
 extends Node2D
 
 enum PieceType {
@@ -11,8 +12,16 @@ enum PieceType {
 
 enum PieceColor { WHITE, BLACK }
 
-@export var type: PieceType = PieceType.PAWN
-@export var color: PieceColor = PieceColor.WHITE
+@export var type: PieceType = PieceType.PAWN:
+	set(value):
+		type = value
+		_refresh_visual()
+@export var color: PieceColor = PieceColor.WHITE:
+	set(value):
+		color = value
+		_refresh_visual()
+
+@onready var symbol_label: Label = $Symbol
 
 var coord: Vector2i = Vector2i.ZERO
 var board: Node2D = null
@@ -20,6 +29,36 @@ var has_moved: bool = false
 var is_revealed: bool = false           # Espiao
 var portal_pair_coord: Vector2i = Vector2i(-999, -999)  # Portal
 var is_blocking: bool = false           # Sentinela
+
+# Simbolos Unicode (xadrez classico) + letras para inéditas
+const SYMBOLS_WHITE = {
+	PieceType.PAWN: "♙", PieceType.ROOK: "♖", PieceType.KNIGHT: "♘",
+	PieceType.BISHOP: "♗", PieceType.QUEEN: "♕", PieceType.KING: "♔",
+	PieceType.ARCHBISHOP: "A", PieceType.CHANCELLOR: "C",
+	PieceType.SENTINEL: "S", PieceType.SPY: "Y", PieceType.PORTAL: "O",
+}
+const SYMBOLS_BLACK = {
+	PieceType.PAWN: "♟", PieceType.ROOK: "♜", PieceType.KNIGHT: "♞",
+	PieceType.BISHOP: "♝", PieceType.QUEEN: "♛", PieceType.KING: "♚",
+	PieceType.ARCHBISHOP: "a", PieceType.CHANCELLOR: "c",
+	PieceType.SENTINEL: "s", PieceType.SPY: "y", PieceType.PORTAL: "o",
+}
+
+func _ready():
+	_refresh_visual()
+
+func _refresh_visual():
+	if symbol_label == null:
+		return
+	var src = SYMBOLS_WHITE if color == PieceColor.WHITE else SYMBOLS_BLACK
+	symbol_label.text = src.get(type, "?")
+	symbol_label.modulate = Color(0.98, 0.95, 0.86) if color == PieceColor.WHITE else Color(0.12, 0.10, 0.08)
+
+func setup(p_type: PieceType, p_color: PieceColor, p_coord: Vector2i, p_board: Node2D) -> void:
+	type = p_type
+	color = p_color
+	coord = p_coord
+	board = p_board
 
 # Ortogonais - compartilham aresta
 const DIR_ORTHO = [
