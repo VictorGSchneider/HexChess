@@ -17,12 +17,12 @@ extends Node2D
 @export var hex_size: float = 40.0
 
 ## Cores das 3 faixas do tabuleiro (como no xadrez hexagonal clássico)
-@export var color_a: Color = Color("#f0d9b5")  # Clara
-@export var color_b: Color = Color("#b58863")  # Média
-@export var color_c: Color = Color("#8b6914")  # Escura
+@export var color_a: Color = Color("000000ff")  # Clara
+@export var color_b: Color = Color("818181ff")  # Média
+@export var color_c: Color = Color("c3c3c3ff")  # Escura
 
 ## Cor do contorno
-@export var outline_color: Color = Color("#5a3e1b")
+@export var outline_color: Color = Color("00000000")
 @export var outline_width: float = 1.5
 
 ## Cor de highlight (quando passa o mouse)
@@ -111,11 +111,18 @@ func _generate_board():
 
 
 func _get_color_index(q: int, r: int) -> int:
-	"""Determina a cor do hexágono (0, 1 ou 2) — garante 3 cores alternadas."""
-	# Fórmula clássica para 3 cores em grid hexagonal
-	var val = ((q % 3) + 3) % 3
-	val = (val + ((r % 3) + 3) % 3) % 3
-	return val
+	"""
+	Usa coordenadas cúbicas (q, r, s) e a propriedade que
+	em um grid hexagonal, (q + r + s) % 3 garante nenhuma
+	cor igual tocando.
+	
+	Já que s = -q - r, temos:
+	q + r + s = q + r + (-q - r) = 0 (sempre)
+	
+	Então usamos: (q + 2*r) % 3
+	Isso garante que vizinhos diretos sempre diferem de 1 cor.
+	"""
+	return ((q + 2*r) % 3 + 3) % 3
 
 
 func _get_hex_color(color_index: int) -> Color:
